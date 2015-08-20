@@ -54,8 +54,8 @@ module Elasticsearch
 
         # Delegate methods to `@records`
         #
-        def method_missing(method_name, *arguments)
-          records.respond_to?(method_name) ? records.__send__(method_name, *arguments) : super
+        def method_missing(method_name, *arguments, &block)
+          records.respond_to?(method_name) ? records.__send__(method_name, *arguments, &block) : super
         end
 
         # Respond to methods from `@records`
