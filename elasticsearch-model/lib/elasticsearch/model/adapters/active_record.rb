@@ -12,8 +12,13 @@ module Elasticsearch
         module Records
           # Returns an `ActiveRecord::Relation` instance
           #
-          def records
+          def records(options={})
+            unordered = options.delete(:unordered)
+
             sql_records = klass.where(klass.primary_key => ids)
+
+            # Return early if we don't need to order the results.
+            return sql_records if unordered
 
             # Re-order records based on the order from Elasticsearch hits
             # by redefining `to_a`, unless the user has called `order()`
