@@ -222,7 +222,10 @@ module Elasticsearch
         def create_index!(options={})
           target_index = options.delete(:index) || self.index_name
 
-          delete_index!(options.merge index: target_index) if options[:force]
+          if options[:force]
+            delete_index!(options.merge(index: target_index,
+                                        ignore_missing: true))
+          end
 
           unless index_exists?(index: target_index)
             self.client.indices.create index: target_index,
@@ -265,7 +268,9 @@ module Elasticsearch
             self.client.indices.delete index: target_index
           rescue Exception => e
             if e.class.to_s =~ /NotFound/ && options[:force]
-              STDERR.puts "[!!!] Index does not exist (#{e.class})"
+              if !options[:ignore_missing]
+                STDERR.puts "[!!!] Index does not exist (#{e.class})"
+              end
             else
               raise e
             end
